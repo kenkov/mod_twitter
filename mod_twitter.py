@@ -3,7 +3,7 @@
 
 
 from mod import Mod
-from textfilter import TwitterPreprocess
+from preprocessing import TwitterPreprocessing
 import re
 from datetime import datetime
 import numpy as np
@@ -12,10 +12,10 @@ import numpy as np
 class PrePostProcessing:
     def __init__(self, logger=None):
         Mod.__init__(self, logger)
-        self.twpre = TwitterPreprocess()
+        self.twpre = TwitterPreprocessing()
 
     def preprocess(self, text) -> str:
-        return self.twpre.sub(text)
+        return self.twpre.convert(text)
 
     def postprocess(self, message, answer, master) -> (float, str, str):
         prob, text, source, info = answer
@@ -58,7 +58,7 @@ class ModTwitter(Mod):
         self.modules.append(module)
         self.logger.info("add module to {}: {}".format(self, module))
 
-    def is_fire(self, message, master) -> bool:
+    def is_utterance_needed(self, message, master) -> bool:
         """
         900秒以上ツイートしていないかリプライだったらツイートする
         """
@@ -87,7 +87,7 @@ class ModTwitter(Mod):
             info
         )
 
-    def reses(self, message, master):
+    def utter(self, message, master):
         _message = {
             "id": message["id"],
             "text": self.processing.preprocess(message["text"]),
@@ -98,7 +98,7 @@ class ModTwitter(Mod):
         }
         answers = []
         for module in self.modules:
-            answers.extend(module.reses(_message, master))
+            answers.extend(module.utter(_message, master))
 
         return [
             self.random_prob(
