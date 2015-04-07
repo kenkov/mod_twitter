@@ -54,11 +54,19 @@ class ModTwitter(Mod):
         self.basetime = datetime.now()
         self.modules = []
 
+    def __str__(self):
+        return "{}\n{}".format(
+            ModTwitter.__name__,
+            "\n".join("        - {}".format(str(mod)) for mod in self.modules)
+        )
+
     def add_module(self, module):
         self.modules.append(module)
-        self.logger.info("add module to {}: {}".format(self, module))
+        self.logger.info("add module to {}: {}".format(
+            ModTwitter.__name__, module
+        ))
 
-    def is_utterance_needed(self, message, master) -> bool:
+    def can_utter(self, message, master) -> bool:
         """
         900秒以上ツイートしていないかリプライだったらツイートする
         """
